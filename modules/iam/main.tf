@@ -1,13 +1,13 @@
-# Create an IAM policy
+# Create IAM Policy
 resource "aws_iam_policy" "example_policy" {
   name        = "example_policy"
-  description = "A test policy for demonstration purposes"
+  description = "A test policy for Lambda execution with various AWS service permissions"
   
   policy = jsonencode({
     Version   = "2012-10-17"
     Statement = [
       {
-        Sid       = "VisualEditor0"
+        Sid       = "LambdaPermissions"
         Effect    = "Allow"
         Action    = [
           "lambda:CreateFunction",
@@ -83,7 +83,7 @@ resource "aws_iam_policy" "example_policy" {
         Resource  = "*"
       },
       {
-        Sid       = "VisualEditor1"
+        Sid       = "SecretAndRoleManagement"
         Effect    = "Allow"
         Action    = [
           "iam:GetRole",
@@ -107,9 +107,8 @@ resource "aws_iam_policy" "example_policy" {
   })
 }
 
-# Create IAM Role
 resource "aws_iam_role" "iam_role" {
-  name = "ferklin_role"
+  name = "ferklin_lambda_ec2_role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -117,7 +116,10 @@ resource "aws_iam_role" "iam_role" {
       {
         Effect = "Allow"
         Principal = {
-          Service = "ec2.amazonaws.com"
+          Service = [
+            "lambda.amazonaws.com",  # Allow Lambda to assume the role
+            "ec2.amazonaws.com"      # Allow EC2 to assume the role
+          ]
         }
         Action = "sts:AssumeRole"
       }
@@ -125,8 +127,8 @@ resource "aws_iam_role" "iam_role" {
   })
 }
 
-# Attach policy to the IAM Role
+# Attach the policy to the IAM Role
 resource "aws_iam_role_policy_attachment" "role_attach" {
-  role       = aws_iam_role.iam_role.id
+  role       =  aws_iam_role.iam_role.id # Ensure this matches the role name
   policy_arn = aws_iam_policy.example_policy.arn
 }

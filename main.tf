@@ -32,9 +32,6 @@ module "aws_db_instance" {
   source = "./modules/aws_rds"
   vpc_security_group_ids = [module.security_groups.postgres_sg_id]
   secret_arn      = module.secret.secret_arn # Pass the secret ARN from the secret module
-
-  
-
   
 }
 
@@ -44,9 +41,23 @@ module "aws_elasticache_cluster" {
   
 }
 
+module "aws_acm_certificate" {
+  source = "./modules/acm"
+  certificate_arn = module.aws_acm_certificate.certificate_arn
+  
+}
 
+module "zappa_lambda" {
+  source = "./modules/zappa_lambda"
+s3_bucket =  module.s3.s3_bucket_ids[0].bucket
+role_arn = module.iam.iam_role_ids
+# certificate_arn = module.aws_acm_certificate.certificate_arn
+certificate_arn = "arn:aws:acm:us-east-1:443370702909:certificate/90ad8db4-3995-48a7-b200-070351f476b6"
+lambda_s3_key = "lambda_function.zip"  #upload the zip automatically using commands
+security_group_ids = [ module.security_groups.postgres_sg_id, module.security_groups.redis_sg_id, module.security_groups.secrets_manager_sg_ids ]
 
-
+  
+}
 
   
 

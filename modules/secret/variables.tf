@@ -5,7 +5,7 @@ variable "aws_region" {
 
 variable "secret_name" {
   description = "The name of the secret in AWS Secrets Manager"
-  default     = "secret-flerken-c"
+  default     = "secret-flerken-g"
 }
 
 variable "django_private_key" {

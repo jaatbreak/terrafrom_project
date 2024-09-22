@@ -3,7 +3,7 @@
 resource "aws_security_group" "redis_sg" {
   name        = "redis-sg"
   description = "Security group for Redis"
-  vpc_id = "vpc-0a5d21b64177a9993"
+  vpc_id = var.vpc_id
 
   ingress {
     from_port   = 6379
@@ -24,7 +24,7 @@ resource "aws_security_group" "redis_sg" {
 resource "aws_security_group" "postgres_sg" {
   name        = "postgres-sg"
   description = "Security group for PostgreSQL"
-  vpc_id = "vpc-0a5d21b64177a9993"
+  vpc_id = var.vpc_id
 
   ingress {
     from_port   = 5432
@@ -45,7 +45,7 @@ resource "aws_security_group" "postgres_sg" {
 resource "aws_security_group" "secrets_manager_sg" {
   name        = "secrets-manager-sg"
   description = "Security group for AWS Secrets Manager"
-  vpc_id = "vpc-0a5d21b64177a9993"
+  vpc_id = var.vpc_id
 
   ingress {
     from_port   = 443
