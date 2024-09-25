@@ -18,7 +18,7 @@ variable "lambda_function_name" {
 variable "lambda_s3_key" {
   description = "The key in the S3 bucket where the Lambda function code is stored"
   type        = string
-  default = "lambda_function.zip"
+  
 }
 
 variable "role_arn" {
