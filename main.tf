@@ -21,8 +21,7 @@ module "security_groups" {
 module "secret" {
   source = "./modules/secret"
  
-  
-  
+ 
 }
 
 module "aws_db_instance" {
@@ -49,7 +48,7 @@ module "zappa_lambda" {
 s3_bucket =  module.s3.s3_bucket_ids[0].bucket
 role_arn = module.iam.iam_role_ids
 certificate_arn = module.aws_acm_certificate.certificate_arn
-lambda_s3_key = "terraform.tfstate"  #upload the zip automatically using commands
+lambda_s3_key = "lambda_function.zip"  #upload the zip automatically using commands
 security_group_ids = [ module.security_groups.postgres_sg_id, module.security_groups.redis_sg_id, module.security_groups.secrets_manager_sg_ids ]
 
   
@@ -60,5 +59,9 @@ module "aws_neptune_cluster_instance" {
 
 }
 
+module "aws_neptune_cluster" {
+  source = "./modules/aws_neptune"
+  
+}
   
 

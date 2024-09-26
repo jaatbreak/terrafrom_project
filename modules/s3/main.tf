@@ -12,13 +12,14 @@ resource "aws_s3_bucket" "bucket_create" {
 
 # resource "null_resource" "upload_lambda_zip" {
 #   provisioner "local-exec" {
-#     command = "aws s3 cp ./lambda-function.zip s3://${aws_s3_bucket.bucket_create.bucket}/lambda-function.zip"
+#     # Ensure Windows paths are escaped correctly with double backslashes
+#     command = "aws s3 cp \"C:\\Users\\RITS\\Downloads\\terrafrom_project\\lambda_function.zip\" s3://${aws_s3_bucket.bucket_create.bucket}/lambda_function.zip"
 #   }
 
-#   # This ensures the bucket is created before the file is uploaded
+#   # Ensures the bucket is created before the file is uploaded
 #   depends_on = [aws_s3_bucket.bucket_create]
-
 # }
+
 
 # Create folders in S3 bucket
 resource "aws_s3_object" "folder_create_graph" {

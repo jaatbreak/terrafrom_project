@@ -18,6 +18,7 @@ variable "lambda_function_name" {
 variable "lambda_s3_key" {
   description = "The key in the S3 bucket where the Lambda function code is stored"
   type        = string
+  default = "lambda_function.zip"
   
 }
 
@@ -29,7 +30,7 @@ variable "role_arn" {
 variable "lambda_handler" {
   description = "The handler for the Lambda function"
   type        = string
-  default     = "handler.lambda_handler"  # Example handler
+  default     = "lambda_function.lambda_handler"  # Example handler
 }
 
 variable "lambda_runtime" {

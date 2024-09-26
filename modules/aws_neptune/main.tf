@@ -1,30 +1,39 @@
-
-# Create an Amazon Neptune cluster
-resource "aws_neptune_cluster" "neptune_cluster" {
-  cluster_identifier      = "db-neptune-1"
-  engine                  = "neptune"
-  engine_version          = "1.1.1.0"  # Modify version as needed
-  backup_retention_period = 7
-  preferred_backup_window = "07:00-09:00"
-  preferred_maintenance_window = "mon:03:00-mon:04:00"
-  storage_encrypted       = true
-  apply_immediately       = true
-  skip_final_snapshot = false
+# Provider configuration
+provider "aws" {
+  region = var.aws_region
 }
 
-# Create one Neptune cluster instance with the smallest supported instance size
-resource "aws_neptune_cluster_instance" "neptune_instance" {
-  count              = 1
-  cluster_identifier = aws_neptune_cluster.neptune_cluster.id
-  instance_class     = var.instance_class  # Smallest Neptune instance class
-  apply_immediately  = true
+# Neptune Subnet Group
+resource "aws_neptune_subnet_group" "neptune_subnet_group" {
+  name       = var.neptune_subnet_group_name
+  subnet_ids = var.subnet_ids
+
+  tags = {
+    Name = var.neptune_subnet_group_name
+  }
 }
 
-# Security group to allow inbound traffic to Neptune
+# Optional: Neptune Parameter Group
+resource "aws_neptune_parameter_group" "neptune_parameter_group" {
+  name        = var.neptune_parameter_group_name
+  family      = "neptune1"
+  description = "Custom parameter group for Neptune cluster"
+
+  parameter {
+    name  = "neptune_query_timeout"
+    value = "120000"
+  }
+
+  tags = {
+    Name = var.neptune_parameter_group_name
+  }
+}
+
+# Neptune Security Group
 resource "aws_security_group" "neptune_sg" {
-  name        = "neptune_security_group"
-  description = "Allow Neptune inbound traffic"
- 
+  name        = var.neptune_security_group_name
+  description = "Security group for Neptune cluster"
+  vpc_id      = var.vpc_id
 
   ingress {
     from_port   = 8182
@@ -39,17 +48,39 @@ resource "aws_security_group" "neptune_sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  tags = {
+    Name = var.neptune_security_group_name
+  }
 }
 
-# Neptune subnet group
-resource "aws_neptune_subnet_group" "neptune_subnet_group" {
-  name       = "neptune_subnet_group"
-  subnet_ids = var.subnet_ids
+# Neptune Cluster
+resource "aws_neptune_cluster" "neptune_cluster" {
+  cluster_identifier      = var.neptune_cluster_identifier
+  engine                  = "neptune"
+  neptune_subnet_group_name = aws_neptune_subnet_group.neptune_subnet_group.name
+  vpc_security_group_ids   = [aws_security_group.neptune_sg.id]
+
+  backup_retention_period  = var.backup_retention_period
+  preferred_backup_window  = var.preferred_backup_window
+  preferred_maintenance_window = var.preferred_maintenance_window
+  skip_final_snapshot      = true
+  apply_immediately        = true
+
+  tags = {
+    Name = var.neptune_cluster_identifier
+  }
 }
 
-# Attach security group to Neptune instances
-resource "aws_neptune_cluster_parameter_group" "neptune_parameters" {
-  name        = "neptune-parameters"
-  family      = "neptune1"
-  description = "Neptune cluster parameter group"
+# Neptune Cluster Instances
+resource "aws_neptune_cluster_instance" "neptune_instance" {
+  count               = var.instance_count
+  cluster_identifier  = aws_neptune_cluster.neptune_cluster.cluster_identifier
+  instance_class      = var.instance_class
+  engine              = "neptune"
+  apply_immediately   = true
+
+  tags = {
+    Name = "${var.neptune_cluster_identifier}-instance-${count.index + 1}"
+  }
 }

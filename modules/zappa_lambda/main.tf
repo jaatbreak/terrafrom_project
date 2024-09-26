@@ -45,20 +45,16 @@ resource "aws_api_gateway_integration" "zappa_integration" {
   uri = aws_lambda_function.zappa_lambda.invoke_arn
 }
 
-# Custom domain setup with ACM SSL Certificate
-# resource "aws_api_gateway_domain_name" "zappa_custom_domain" {
-#   domain_name = var.domain
-#   regional_certificate_arn = var.certificate_arn
-# }
 
 resource "aws_api_gateway_domain_name" "zappa_custom_domain" {
-  domain_name = var.dns_name
-  certificate_arn = var.certificate_arn  # Ensure this is an edge certificate (issued in us-east-1)
-  # use the mannual crn of the certificate no. not working with certificate crn.
+  domain_name     = var.dns_name
+  certificate_arn = var.certificate_arn  # Use the correct ACM certificate for the region
+
   endpoint_configuration {
-    types = ["EDGE"]
+    types = ["REGIONAL"]  # Change from EDGE to REGIONAL
   }
 }
+
 
 
 resource "aws_api_gateway_base_path_mapping" "zappa_base_path_mapping" {
